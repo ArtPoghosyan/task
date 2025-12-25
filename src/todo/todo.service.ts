@@ -1,29 +1,53 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
-import { DataBase } from './db/database';
-import { TODO } from '../typescript/todo/todo.interfaces';
+import DatabaseModule from '../database/database.module';
+const Todo = new DatabaseModule('Todo');
 
 @Injectable()
 export class TodoService {
   async create(createTodoDto: CreateTodoDto) {
-    const todoObj: TODO = { id: Date.now(), ...createTodoDto };
-    return (await DataBase.create(todoObj)) || { message: 'failed' };
+    try {
+      return await Todo.create({ id: Date.now(), ...createTodoDto });
+    } catch (err: any) {
+      console.log('Error in create router service', err);
+      return { message: 'error' };
+    }
   }
 
-  findAll() {
-    return DataBase.find() || { message: 'failed' };
+  async findAll() {
+    try {
+      return await Todo.find();
+    } catch (err) {
+      console.log('Error in findAll router service', err);
+      return { message: 'error' };
+    }
   }
 
-  findOne(id: string) {
-    return DataBase.find(id) || { message: 'failed' };
+  async findOne(id: string) {
+    try {
+      return await Todo.find({ id: +id });
+    } catch (err) {
+      console.log('Error in findOne router service', err);
+      return { message: 'error' };
+    }
   }
 
   async update(id: string, updateTodoDto: UpdateTodoDto) {
-    return (await DataBase.update(id, updateTodoDto)) || { message: 'failed' };
+    try {
+      return await Todo.update({ id: +id }, { $set: { ...updateTodoDto } });
+    } catch (err) {
+      console.log('Error in update router service', err);
+      return { message: 'error' };
+    }
   }
 
   async remove(id: string) {
-    return (await DataBase.remove(id)) || { message: 'failed' };
+    try {
+      return await Todo.remove({ id: +id });
+    } catch (err) {
+      console.log('Error in remove router service', err);
+      return { message: 'error' };
+    }
   }
 }
