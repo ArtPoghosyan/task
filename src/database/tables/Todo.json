@@ -3,11 +3,5 @@
   "path": "C:\\Users\\Asus\\Desktop\\mfm\\todo\\src\\database\\tables\\Todo.json",
   "format": "JSON",
   "name": "Todo",
-  "table": [
-    {
-      "id": 1766676906400,
-      "name": "NodeJs",
-      "completed": true
-    }
-  ]
+  "table": []
 }

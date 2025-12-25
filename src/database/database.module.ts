@@ -1,11 +1,11 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { Module } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { TABLE_FILE } from 'src/typescript/database/table.interfaces';
 import { update } from 'mingo';
 import sift from 'sift';
 
-@Module({})
+@Injectable()
 export default class DatabaseModule {
   private tablePath: string;
 
