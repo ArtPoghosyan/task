@@ -1,60 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
-import DatabaseModule from '../database/database.module';
+import DatabaseService from 'src/database/database.service';
+import DatabaseTables from 'src/database/database.tables';
 
 @Injectable()
 export class TodoService {
-  private Todo: DatabaseModule = new DatabaseModule('Todo');
+  constructor(
+    @Inject(DatabaseTables.TODO) private readonly todoTable: DatabaseService,
+  ) {}
 
   async create(createTodoDto: CreateTodoDto) {
-    try {
-      return await this.Todo.create({ id: Date.now(), ...createTodoDto });
-    } catch (err: any) {
-      console.log('Error in create router service', err);
-      return { message: 'error' };
-    }
+    const todo = await this.todoTable.create({
+      id: Date.now(),
+      ...createTodoDto,
+    });
+    return { message: 'success', todo };
   }
 
-  async findAll() {
-    try {
-      return await this.Todo.find();
-    } catch (err) {
-      console.log('Error in findAll router service', err);
-      return { message: 'error' };
-    }
+  async getAll() {
+    return await this.todoTable.find();
   }
 
-  async findOne(id: string) {
-    try {
-      const todo = await this.Todo.find({ id: +id });
-      return todo ? todo : { message: 'not found' };
-    } catch (err) {
-      console.log('Error in findOne router service', err);
-      return { message: 'error' };
-    }
+  async getOne(id: number) {
+    const todo = await this.todoTable.find(id);
+    if (!todo) throw new NotFoundException();
+    return todo;
   }
 
-  async update(id: string, updateTodoDto: UpdateTodoDto) {
-    try {
-      return (
-        (await this.Todo.update(
-          { id: +id },
-          { $set: { ...updateTodoDto } },
-        )) && { message: 'success' }
-      );
-    } catch (err) {
-      console.log('Error in update router service', err);
-      return { message: 'error' };
-    }
+  async update(id: number, updateTodoDto: UpdateTodoDto) {
+    const updateQuery = await this.todoTable.update(id, updateTodoDto);
+    if (!updateQuery)
+      throw new NotFoundException({
+        message: 'Not Found For Update',
+        statusCode: 404,
+      });
+    return { message: 'success' };
   }
 
-  async remove(id: string) {
-    try {
-      return (await this.Todo.remove({ id: +id })) && { message: 'success' };
-    } catch (err) {
-      console.log('Error in remove router service', err);
-      return { message: 'error' };
-    }
+  async remove(id: number) {
+    const removeQuery = await this.todoTable.remove(id);
+    if (!removeQuery)
+      throw new NotFoundException({
+        message: 'Not Found For Delete',
+        statusCode: 404,
+      });
+    return { message: 'success' };
   }
 }

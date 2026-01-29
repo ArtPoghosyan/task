@@ -3,5 +3,10 @@ export interface TABLE_FILE {
   path: string;
   format: 'JSON';
   name: string;
-  table: Array<object>;
+  table: TABLE_ITEM[];
+}
+
+export interface TABLE_ITEM {
+  id: number;
+  [key: string]: any;
 }
